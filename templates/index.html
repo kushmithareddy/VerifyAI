@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Clone with Analyzer</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #fafafa;
+            color: #262626;
+        }
+        .container { max-width: 935px; margin: 0 auto; padding: 0 20px; }
+        header { background-color: #ffffff; border-bottom: 1px solid #dbdbdb; position: fixed; top: 0; width: 100%; z-index: 10; }
+        header .container { display: flex; justify-content: space-between; align-items: center; height: 60px; }
+        header .logo img { height: 29px; margin-top: 5px; }
+        header .search-bar input { border: 1px solid #dbdbdb; border-radius: 6px; background-color: #fafafa; padding: 7px 12px; text-align: center; width: 268px; }
+        header .nav-icons { display: flex; align-items: center; gap: 22px; }
+        header .nav-icons .material-symbols-outlined { font-size: 26px; cursor: pointer; }
+        header .profile-pic { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; }
+        main { padding-top: 80px; display: flex; }
+        .feed { width: 614px; margin: 0 auto; }
+        .stories { background-color: #ffffff; border: 1px solid #dbdbdb; border-radius: 8px; padding: 16px; margin-bottom: 24px; display: flex; gap: 20px; overflow-x: auto; }
+        .story { text-align: center; font-size: 12px; cursor: pointer; }
+        .story img { width: 60px; height: 60px; border-radius: 50%; border: 2px solid #e60067; padding: 2px; }
+        .post { background-color: #ffffff; border: 1px solid #dbdbdb; border-radius: 8px; margin-bottom: 24px; }
+        .post-header { display: flex; align-items: center; padding: 14px; }
+        .post-header .profile-pic { width: 32px; height: 32px; border-radius: 50%; margin-right: 14px; }
+        .post-header .username { font-weight: 600; font-size: 14px; }
+        .post-image img { width: 100%; height: auto; }
+        .post-actions { padding: 8px 16px; display: flex; gap: 16px; }
+        .post-actions .material-symbols-outlined { font-size: 26px; cursor: pointer; }
+        .post-actions .bookmark { margin-left: auto; }
+        .post-info { padding: 0 16px 16px; font-size: 14px; }
+        .post-info .likes { font-weight: 600; margin: 4px 0 8px; }
+        .post-info .caption { margin: 0 0 4px; }
+        .post-info .username { font-weight: 600; margin-right: 5px; }
+        .post-info .comments { color: #8e8e8e; cursor: pointer; }
+        .logout-btn {
+            background: #ff3b30;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .modal { display: none; position: fixed; z-index: 20; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); justify-content: center; align-items: center; }
+        .modal-content { background-color: #ffffff; border-radius: 12px; width: 500px; max-width: 90%; text-align: center; position: relative; }
+        .modal-header { border-bottom: 1px solid #dbdbdb; padding: 10px 20px; display: flex; justify-content: center; align-items: center; position: relative; }
+        .modal-header h3 { margin: 0; font-size: 16px; font-weight: 600; }
+        .close-btn { position: absolute; top: 5px; right: 15px; font-size: 30px; cursor: pointer; color: #555; }
+        .modal-body { padding: 20px; min-height: 350px; display: flex; flex-direction: column; justify-content: center; }
+        .upload-box { border: 2px dashed #dbdbdb; border-radius: 12px; padding: 40px 20px; cursor: pointer; transition: border-color 0.2s; }
+        .upload-box:hover { border-color: #aaa; }
+        .upload-box label { display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer; }
+        .upload-icon { font-size: 48px; }
+        .upload-box span { font-size: 16px; font-weight: 600; }
+        .upload-box .desc { font-size: 12px; color: #8e8e8e; font-weight: normal; }
+        .upload-box input[type="file"] { display: none; }
+        #file-name { margin-top: 15px; font-weight: 500; color: #0095f6; }
+        .analyze-btn { background-color: #0095f6; color: white; border: none; border-radius: 8px; padding: 10px 20px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 20px; font-size: 14px; }
+        .analyze-btn:disabled { background-color: #b2dffc; cursor: not-allowed; }
+        .result-box { padding: 20px; border: 2px solid #e00000; background-color: #fff5f5; border-radius: 12px; margin-top: 20px; }
+        .result-box.success { border-color: #009900; background-color: #f5fff5; }
+        .result-title { font-size: 20px; font-weight: 600; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .result-title .icon { font-size: 24px; }
+        .result-box.success .result-title { color: #009900; }
+        .result-box .result-title { color: #e00000; }
+        .result-box .desc { font-size: 14px; color: #555; }
+        /* PIN Container */
+        #pin-container { display:flex; flex-direction:column; align-items:center; gap:10px; margin-top:20px; padding:20px; border:2px solid #0095f6; border-radius:12px; background:#f0f8ff; }
+        #pin-container input { padding:10px; border:1px solid #ccc; border-radius:6px; width:150px; text-align:center; font-size:16px; }
+        #pin-container button { padding:8px 15px; border:none; border-radius:6px; background:#0095f6; color:#fff; cursor:pointer; font-weight:600; }
+        #pin-msg { font-size:14px; }
+        @media (max-width: 875px) { .search-bar { display: none; } }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Instagram_logo.svg/1280px-Instagram_logo.svg.png" alt="Instagram Logo">
+            </div>
+            <div class="search-bar">
+                <input type="text" placeholder="Search">
+            </div>
+            <div class="nav-icons">
+                <span class="material-symbols-outlined">home</span>
+                <span class="material-symbols-outlined">send</span>
+                <span class="material-symbols-outlined" id="add-post-btn">add_box</span>
+                <span class="material-symbols-outlined">explore</span>
+                <span class="material-symbols-outlined">favorite</span>
+                <img src="https://i.pravatar.cc/28?u=a042581f4e29026704d" alt="Profile" class="profile-pic">
+                <button class="logout-btn">Logout</button>
+            </div>
+        </div>
+    </header>
+    <main class="container">
+        <div class="feed">
+            <div class="stories">
+                <div class="story"><img src="https://i.pravatar.cc/60?u=a" alt="story"><span>user_1</span></div>
+                <div class="story"><img src="https://i.pravatar.cc/60?u=b" alt="story"><span>user_2</span></div>
+                <div class="story"><img src="https://i.pravatar.cc/60?u=c" alt="story"><span>user_3</span></div>
+                <div class="story"><img src="https://i.pravatar.cc/60?u=d" alt="story"><span>user_4</span></div>
+                <div class="story"><img src="https://i.pravatar.cc/60?u=e" alt="story"><span>user_5</span></div>
+            </div>
+            <div id="posts-container">
+                <div class="post">
+                    <div class="post-header"><img src="https://i.pravatar.cc/32?u=f" alt="Profile" class="profile-pic"><span class="username">example_user</span></div>
+                    <div class="post-image"><img src="https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=1948&auto=format&fit=crop" alt="Post Image"></div>
+                    <div class="post-actions"><span class="material-symbols-outlined">favorite</span><span class="material-symbols-outlined">chat_bubble</span><span class="material-symbols-outlined">send</span><span class="material-symbols-outlined bookmark">bookmark</span></div>
+                    <div class="post-info"><p class="likes">1,024 likes</p><p class="caption"><span class="username">example_user</span> This is an example caption!</p><p class="comments">View all 42 comments</p></div>
+                </div>
+            </div>
+        </div>
+        <div class="sidebar"></div>
+    </main>
+
+    <!-- Upload Modal -->
+    <div id="upload-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Analyze Your Image</h3>
+                <span class="close-btn">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="analyzer-content">
+                    <!-- Flask form submission -->
+                    <form id="analyze-form" action="/upload" method="post" enctype="multipart/form-data">
+                        <div class="upload-box">
+                            <label for="file">
+                                <span class="upload-icon">&#128247;</span>
+                                <span id="upload-text">Click to select or drag & drop</span>
+                                <span class="desc">Maximum file size: 10MB</span>
+                                <input type="file" name="file" id="file" accept="image/png, image/jpeg, image/jpg" required>
+                            </label>
+                        </div>
+                        <div id="file-name"></div>
+                        <button type="submit" id="analyze-btn" class="analyze-btn" disabled>Analyze Image</button>
+                    </form>
+
+                    <!-- Result Box and PIN Logic -->
+                    {% if result %}
+                        <div class="result-box{% if result == 'Real' %} success{% endif %}" style="display:block;">
+                            <div class="result-title">
+                                {% if result == 'Real' %}
+                                    <span class="icon">&#10004;</span>
+                                    Result: Real
+                                {% else %}
+                                    <span class="icon">&#10060;</span>
+                                    Result: Fake
+                                {% endif %}
+                            </div>
+                            <div class="desc">
+                                {% if result == 'Real' %}
+                                    This image appears genuine and shows no signs of artificial manipulation.
+                                {% else %}
+                                    This image shows signs of being artificially generated or manipulated.
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {% if result == 'Real' %}
+                            <script>
+                                window.addEventListener("load", () => {
+                                    setTimeout(() => {
+                                        if (confirm("✅ This image is Real! Do you want to post it now?")) {
+                                            const postsContainer = document.getElementById("posts-container");
+                                            const newPost = document.createElement("div");
+                                            newPost.classList.add("post");
+                                            newPost.innerHTML = `
+                                                <div class="post-header">
+                                                    <img src="https://i.pravatar.cc/32?u=new" alt="Profile" class="profile-pic">
+                                                    <span class="username">you</span>
+                                                </div>
+                                                <div class="post-image">
+                                                    <img src="{{ uploaded_image_url }}" alt="Uploaded Post">
+                                                </div>
+                                                <div class="post-actions">
+                                                    <span class="material-symbols-outlined">favorite</span>
+                                                    <span class="material-symbols-outlined">chat_bubble</span>
+                                                    <span class="material-symbols-outlined">send</span>
+                                                    <span class="material-symbols-outlined bookmark">bookmark</span>
+                                                </div>
+                                                <div class="post-info">
+                                                    <p class="likes">0 likes</p>
+                                                    <p class="caption"><span class="username">you</span> Just uploaded this!</p>
+                                                    <p class="comments">No comments yet</p>
+                                                </div>
+                                            `;
+                                            postsContainer.prepend(newPost);
+                                            document.getElementById("upload-modal").style.display = "none";
+                                        }
+                                    }, 500);
+                                });
+                            </script>
+                        {% else %}
+                            <div id="pin-container">
+                                <p><b>⚠️ This image is detected as Fake.</b></p>
+                                <p>Enter a unique 6-digit PIN to confirm upload:</p>
+                                <input type="text" id="pin-input" maxlength="6">
+                                <button id="pin-submit">Submit PIN</button>
+                                <p id="pin-msg"></p>
+                            </div>
+                            <script>
+                                document.getElementById("pin-submit").onclick = () => {
+                                    const pin = document.getElementById("pin-input").value;
+                                    const msg = document.getElementById("pin-msg");
+
+                                    if (/^\d{6}$/.test(pin)) {
+                                        msg.style.color = "green";
+                                        msg.textContent = "✅ PIN accepted! Your post has been uploaded.";
+
+                                        const postsContainer = document.getElementById("posts-container");
+                                        const newPost = document.createElement("div");
+                                        newPost.classList.add("post");
+                                        newPost.innerHTML = `
+                                            <div class="post-header">
+                                                <img src="https://i.pravatar.cc/32?u=fake" alt="Profile" class="profile-pic">
+                                                <span class="username">you</span>
+                                            </div>
+                                            <div class="post-image">
+                                                <img src="{{ uploaded_image_url }}" alt="Uploaded Post">
+                                            </div>
+                                            <div class="post-actions">
+                                                <span class="material-symbols-outlined">favorite</span>
+                                                <span class="material-symbols-outlined">chat_bubble</span>
+                                                <span class="material-symbols-outlined">send</span>
+                                                <span class="material-symbols-outlined bookmark">bookmark</span>
+                                            </div>
+                                            <div class="post-info">
+                                                <p class="likes">0 likes</p>
+                                                <p class="caption"><span class="username">you</span> Uploaded with PIN verification.</p>
+                                                <p class="comments">No comments yet</p>
+                                            </div>
+                                        `;
+                                        postsContainer.prepend(newPost);
+                                        setTimeout(() => { document.getElementById("upload-modal").style.display = "none"; }, 1000);
+                                    } else {
+                                        msg.style.color = "red";
+                                        msg.textContent = "❌ Please enter a valid 6-digit PIN.";
+                                    }
+                                };
+                            </script>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const modal = document.getElementById('upload-modal');
+            const addPostBtn = document.getElementById('add-post-btn');
+            const closeBtn = document.querySelector('.close-btn');
+            const fileInput = document.getElementById('file');
+            const analyzeBtn = document.getElementById('analyze-btn');
+            const fileNameDisplay = document.getElementById('file-name');
+            const uploadText = document.getElementById('upload-text');
+
+            addPostBtn.onclick = () => { modal.style.display = 'flex'; };
+            closeBtn.onclick = () => { modal.style.display = 'none'; resetAnalyzer(); };
+            window.onclick = (event) => { if (event.target == modal) { modal.style.display = 'none'; resetAnalyzer(); } };
+
+            fileInput.onchange = () => {
+                if (fileInput.files.length > 0) {
+                    fileNameDisplay.textContent = `Selected file: ${fileInput.files[0].name}`;
+                    uploadText.textContent = "File Selected!";
+                    analyzeBtn.disabled = false;
+                } else {
+                    fileNameDisplay.textContent = '';
+                    uploadText.textContent = "Click to select or drag & drop";
+                    analyzeBtn.disabled = true;
+                }
+            };
+
+            function resetAnalyzer() {
+                fileInput.value = '';
+                fileNameDisplay.textContent = '';
+                uploadText.textContent = "Click to select or drag & drop";
+                analyzeBtn.disabled = true;
+            }
+
+            // Auto-open modal if result exists
+            {% if result %}
+                modal.style.display = 'flex';
+            {% endif %}
+        });
+    </script>
+</body>
+</html>

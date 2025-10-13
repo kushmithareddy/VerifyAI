@@ -1,0 +1,65 @@
+ # Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Flask
+instance/
+.webassets-cache
+
+# Virtual Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Data and Uploads
+# If your datasets or user uploads are very large, you might want to ignore them.
+# Data/
+# uploads/
+Data/
+uploads/
+
+# OS-generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+echo node_modules/ > .gitignore
+echo __pycache__/ >> .gitignore
+echo *.h5 >> .gitignore
+echo *.pkl >> .gitignore
+echo *.ckpt >> .gitignore
+echo *.zip >> .gitignore
+echo *.rar >> .gitignore
+echo *.tar >> .gitignore
+echo *.tar.gz >> .gitignore
+echo *.log >> .gitignore
