@@ -206,42 +206,70 @@
                                 <p id="pin-msg"></p>
                             </div>
                             <script>
-                                document.getElementById("pin-submit").onclick = () => {
+                                // Updated PIN submission: verify with server-side /verify-pin endpoint
+                                document.getElementById("pin-submit").onclick = async () => {
                                     const pin = document.getElementById("pin-input").value;
                                     const msg = document.getElementById("pin-msg");
 
-                                    if (/^\d{6}$/.test(pin)) {
-                                        msg.style.color = "green";
-                                        msg.textContent = "✅ PIN accepted! Your post has been uploaded.";
-
-                                        const postsContainer = document.getElementById("posts-container");
-                                        const newPost = document.createElement("div");
-                                        newPost.classList.add("post");
-                                        newPost.innerHTML = `
-                                            <div class="post-header">
-                                                <img src="https://i.pravatar.cc/32?u=fake" alt="Profile" class="profile-pic">
-                                                <span class="username">you</span>
-                                            </div>
-                                            <div class="post-image">
-                                                <img src="{{ uploaded_image_url }}" alt="Uploaded Post">
-                                            </div>
-                                            <div class="post-actions">
-                                                <span class="material-symbols-outlined">favorite</span>
-                                                <span class="material-symbols-outlined">chat_bubble</span>
-                                                <span class="material-symbols-outlined">send</span>
-                                                <span class="material-symbols-outlined bookmark">bookmark</span>
-                                            </div>
-                                            <div class="post-info">
-                                                <p class="likes">0 likes</p>
-                                                <p class="caption"><span class="username">you</span> Uploaded with PIN verification.</p>
-                                                <p class="comments">No comments yet</p>
-                                            </div>
-                                        `;
-                                        postsContainer.prepend(newPost);
-                                        setTimeout(() => { document.getElementById("upload-modal").style.display = "none"; }, 1000);
-                                    } else {
+                                    // basic client-side format check (keep original behavior)
+                                    if (!/^\d{6}$/.test(pin)) {
                                         msg.style.color = "red";
                                         msg.textContent = "❌ Please enter a valid 6-digit PIN.";
+                                        return;
+                                    }
+
+                                    // Ask server to verify current valid TOTP (30s rotating) — Flask route /verify-pin must exist
+                                    try {
+                                        msg.style.color = "black";
+                                        msg.textContent = "🔄 Verifying PIN...";
+
+                                        const resp = await fetch("/verify-pin", {
+                                            method: "POST",
+                                            headers: { "Content-Type": "application/json" },
+                                            body: JSON.stringify({ pin })
+                                        });
+
+                                        const data = await resp.json();
+
+                                        if (data && data.valid) {
+                                            msg.style.color = "green";
+                                            msg.textContent = "✅ PIN accepted! Your post has been uploaded.";
+
+                                            // Keep the existing client-side post-creation behavior (unchanged)
+                                            const postsContainer = document.getElementById("posts-container");
+                                            const newPost = document.createElement("div");
+                                            newPost.classList.add("post");
+                                            newPost.innerHTML = `
+                                                <div class="post-header">
+                                                    <img src="https://i.pravatar.cc/32?u=fake" alt="Profile" class="profile-pic">
+                                                    <span class="username">you</span>
+                                                </div>
+                                                <div class="post-image">
+                                                    <img src="{{ uploaded_image_url }}" alt="Uploaded Post">
+                                                </div>
+                                                <div class="post-actions">
+                                                    <span class="material-symbols-outlined">favorite</span>
+                                                    <span class="material-symbols-outlined">chat_bubble</span>
+                                                    <span class="material-symbols-outlined">send</span>
+                                                    <span class="material-symbols-outlined bookmark">bookmark</span>
+                                                </div>
+                                                <div class="post-info">
+                                                    <p class="likes">0 likes</p>
+                                                    <p class="caption"><span class="username">you</span> Uploaded with PIN verification.</p>
+                                                    <p class="comments">No comments yet</p>
+                                                </div>
+                                            `;
+                                            postsContainer.prepend(newPost);
+                                            setTimeout(() => { document.getElementById("upload-modal").style.display = "none"; }, 1000);
+
+                                        } else {
+                                            msg.style.color = "red";
+                                            msg.textContent = "❌ Invalid or expired PIN. Please try again.";
+                                        }
+                                    } catch (err) {
+                                        console.error("PIN verify error", err);
+                                        msg.style.color = "red";
+                                        msg.textContent = "⚠️ Could not verify PIN (server error).";
                                     }
                                 };
                             </script>
