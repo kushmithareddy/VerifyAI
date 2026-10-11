@@ -13,7 +13,7 @@ function StatCard({ title, value, subtitle }) {
 }
 
 // 🔐 Shared secret (must match Flask backend)
-const SHARED_SECRET = "my_shared_secret_key";
+const SHARED_SECRET = import.meta.env.VITE_VERIFYAI_TOTP_SECRET;
 
 /**
  * Helpers for TOTP-like code generation
